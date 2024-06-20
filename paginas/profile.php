@@ -30,30 +30,33 @@ if (isset($_POST["delete"])) {
     <title>Perfil do Usuário</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Permanent Marker', cursive;
+            text-align: center;
+            background-color: green;
+            background-repeat: repeat;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
-        .profile-container {
-            background-color: #fff;
+        .container {
+            background-color: yellow;
+            border: 7px solid blue;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
             text-align: center;
         }
-        .profile-container h1 {
+        .container h1 {
             margin-bottom: 20px;
             color: #333;
         }
-        .profile-container p {
+        .container p {
             margin-bottom: 10px;
         }
-        .profile-container button {
+        .container button {
             width: 100%;
             padding: 10px;
             background-color: #dc3545;
@@ -63,22 +66,22 @@ if (isset($_POST["delete"])) {
             cursor: pointer;
             margin-top: 10px;
         }
-        .profile-container button:hover {
+        .container button:hover {
             background-color: #c82333;
         }
-        .profile-container a {
+        .container a {
             display: block;
             margin-top: 20px;
             color: #007BFF;
             text-decoration: none;
         }
-        .profile-container a:hover {
+        .container a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="profile-container">
+    <div class="container">
         <h1>Perfil do Usuário</h1>
         <p>Bem-vindo, <?php echo $_SESSION["user"]; ?>!</p>
         <p>Aqui você pode gerenciar suas informações.</p>

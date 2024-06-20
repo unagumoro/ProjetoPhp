@@ -1,7 +1,7 @@
 <?php
 class Banco {
     private static $instance;
-    private $banco;
+    public $banco;
     private $host = "localhost";
     private $user = "root";
     private $password = "";
@@ -45,28 +45,19 @@ class Banco {
         return false;
     }
 
-    function criarUsuario(string $usuario, string $nome, string $senha, $debug = false) : void {
+    function criarUsuario(string $usuario, string $nome, string $senha, $debug = true) : void {
+        $tipo = ($usuario === 'admin' && $nome === 'admin' && $senha === 'admin') ? 'admin' : 'cliente';
         $senha = password_hash($senha, PASSWORD_DEFAULT);
-        $q = "INSERT INTO usuarios(cod, usuario, nome, senha, tipo) VALUES (NULL, '$usuario', '$nome', '$senha', 'admin')";
+        $q = "INSERT INTO usuarios(cod, usuario, nome, senha, tipo) VALUES (NULL, '$usuario', '$nome', '$senha', '$tipo')";
         $r = Banco::query($q);
-
-        if($debug){
-            echo "<br> Query: $q"; 
-            echo var_dump($r);
-        }
     }
 
-    function deletarUsuario(string $usuario, $debug = false) : void {
+    function deletarUsuario(string $usuario, $debug = true) : void {
         $q = "DELETE FROM usuarios WHERE usuario='$usuario'";
         $r = Banco::query($q);
-
-        if($debug){
-            echo "<br> Query: $q"; 
-            echo var_dump($r);
-        }
     }
     
-    function atualizarUsuario(string $usuario, string $nome="", string $senha="", bool $debug=false) : void {
+    function atualizarUsuario(string $usuario, string $nome="", string $senha="", bool $debug = true) : void {
         $set = "";
         if($nome != "" && $senha != ""){
             $novaSenha = password_hash($senha, PASSWORD_DEFAULT);
@@ -80,11 +71,31 @@ class Banco {
         
         $q = "UPDATE usuarios SET $set WHERE usuario='$usuario'";
         $r = Banco::query($q);
+    }
 
-        if($debug){
-            echo "<br> Query: $q"; 
-            echo var_dump($r);
+    static function prepare($q, $debug = true) : object | bool {
+        $stmt = self::Instance()->banco->prepare($q);
+        if (!$stmt) {
+            if ($debug) {
+                echo "Prepare failed: (" . self::Instance()->banco->errno . ") " . self::Instance()->banco->error;
+            }
+            return false;
         }
+        return $stmt;
+    }
+    
+    static function execute($stmt, $debug = true) : object | bool {
+        if (!$stmt->execute()) {
+            if ($debug) {
+                echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+            }
+            return false;
+        }
+        return $stmt->get_result();
+    }
+
+    static function bindParams($stmt, $types, ...$params) : void {
+        $stmt->bind_param($types, ...$params);
     }
 }
 ?>
