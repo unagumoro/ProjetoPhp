@@ -24,21 +24,20 @@ class Banco {
     }
 
     public function fazerLogin(string $usuario, string $senha) : bool {
-        $q = "SELECT cod, usuario, nome, senha FROM usuarios WHERE usuario='$usuario'";
+        $q = "SELECT usuario, nome, senha FROM usuarios WHERE usuario='$usuario'";
         $busca = Banco::query($q);
 
         if($busca->num_rows > 0){
             $usu = $busca->fetch_object();
             if(password_verify($senha, $usu->senha)){
-                $resp = "Login :)";
+                $r = "Login :)";
                 if(session_id() == '') {
                     session_start();
-                    $_SESSION["user"] = $usuario;
-                    $_SESSION["user_id"] = $usu->cod;
+                    $_SESSION["usuario"] = $usuario;
                 }
                 return true;
             } else {
-                $resp = "Senha Inválida :/";
+                $r = "Senha Inválida :/";
                 return false;
             }
         }
@@ -46,9 +45,8 @@ class Banco {
     }
 
     function criarUsuario(string $usuario, string $nome, string $senha, $debug = true) : void {
-        $tipo = ($usuario === 'admin' && $nome === 'admin' && $senha === 'admin') ? 'admin' : 'cliente';
         $senha = password_hash($senha, PASSWORD_DEFAULT);
-        $q = "INSERT INTO usuarios(cod, usuario, nome, senha, tipo) VALUES (NULL, '$usuario', '$nome', '$senha', '$tipo')";
+        $q = "INSERT INTO usuarios(usuario, nome, senha) VALUES ('$usuario', '$nome', '$senha')";
         $r = Banco::query($q);
     }
 

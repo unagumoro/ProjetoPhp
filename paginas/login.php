@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (isset($_SESSION["user"])) {
+if (isset($_SESSION["usuario"])) {
     header("Location: profile.php");
     exit();
 }
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $banco = Banco::Instance();
     if ($banco->fazerLogin($usuario, $senha)) {
-        $_SESSION["user"] = $usuario;
+        $_SESSION["usuario"] = $usuario;
         header("Location: profile.php");
         exit();
     } else {

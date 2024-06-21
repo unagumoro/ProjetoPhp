@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION["user"])) {
+if (!isset($_SESSION["usuario"])) {
     header("Location: login.php");
     exit();
 }
@@ -15,7 +15,7 @@ if (isset($_POST["logout"])) {
 if (isset($_POST["delete"])) {
     include 'banco.php';
     $banco = Banco::Instance();
-    $banco->deletarUsuario($_SESSION["user"]);
+    $banco->deletarUsuario($_SESSION["usuario"]);
     session_destroy();
     header("Location: login.php");
     exit();
@@ -83,7 +83,7 @@ if (isset($_POST["delete"])) {
 <body>
     <div class="container">
         <h1>Perfil do Usuário</h1>
-        <p>Bem-vindo, <?php echo $_SESSION["user"]; ?>!</p>
+        <p>Bem-vindo, <?php echo $_SESSION["usuario"]; ?>!</p>
         <p>Aqui você pode gerenciar suas informações.</p>
         <form method="post" action="profile.php">
             <button type="submit" name="delete">Deletar Usuário</button>
