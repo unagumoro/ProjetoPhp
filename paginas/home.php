@@ -2,70 +2,6 @@
 session_start();
 include_once 'banco.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao'])) {
-    if (isset($_SESSION["usuario"])) {
-        $usuario = $_SESSION["usuario"];
-        $acao = $_POST['acao'];
-
-        switch ($acao) {
-            case 'salvar_palpites':
-                $nome = $_POST['nome'];
-                $palpites = [];
-                
-                for ($i = 1; $i <= 64; $i += 2) {
-                    $placar1 = (int)$_POST['placar' . $i];
-                    $placar2 = (int)$_POST['placar' . ($i + 1)];
-                    $jogo_id = ceil($i / 2);
-                
-                    $palpites[] = [
-                        'nome' => $nome,
-                        'jogo_id' => $jogo_id,
-                        'placar_time1' => $placar1,
-                        'placar_time2' => $placar2
-                    ];
-                }
-                
-                foreach ($palpites as $palpite) {
-                    $q = "INSERT INTO palpites (nome, jogo_id, placar_time1, placar_time2) VALUES (?, ?, ?, ?)";
-                    $stmt = Banco::Instance()->banco->prepare($q);
-                    $stmt->bind_param('siii', $palpite['nome'], $palpite['jogo_id'], $palpite['placar_time1'], $palpite['placar_time2']);
-                    $stmt->execute();
-                }
-                break;            
-
-            case 'atualizar_resultado':
-                for ($i = 1; $i <= 64; $i += 2) {
-                    $placar1 = (int) $_POST['placar' . $i];
-                    $placar2 = (int) $_POST['placar' . ($i + 1)];
-                    $jogo_id = ceil($i / 2);
-
-                    $q_check = "SELECT COUNT(*) AS total FROM resultados WHERE jogo_id = ?";
-                    $stmt_check = Banco::Instance()->banco->prepare($q_check);
-                    $stmt_check->bind_param('i', $jogo_id);
-                    $stmt_check->execute();
-                    $result = $stmt_check->get_result();
-                    $row = $result->fetch_assoc();
-            
-                    if ($row['total'] > 0) {
-                        $q = "UPDATE resultados SET placar_time1 = ?, placar_time2 = ? WHERE jogo_id = ?";
-                        $stmt = Banco::Instance()->banco->prepare($q);
-                        $stmt->bind_param('iii', $placar1, $placar2, $jogo_id);
-                    } else {
-                        $q = "INSERT INTO resultados (jogo_id, placar_time1, placar_time2) VALUES (?, ?, ?)";
-                        $stmt = Banco::Instance()->banco->prepare($q);
-                        $stmt->bind_param('iii', $jogo_id, $placar1, $placar2);
-                    }
-            
-                    $stmt->execute();
-                }
-                break;
-        }
-    } else {
-        header('Location: login.php');
-        exit();
-    }
-}
-
 $q_ranking = "
 SELECT p.nome, COUNT(*) AS acertos
 FROM palpites p
@@ -575,12 +511,12 @@ $stmt_ranking = Banco::Instance()->banco->query($q_ranking);
                 <table>
                     <tr>
                         <td>
-                            <input type="hidden" name="jogo_id7" value="7">
-                            <label for="placar13">A</label>
-                            <input type="text" name="placar13" id="placar13" required> 
+                            <input type="hidden" name="jogo_id32" value="32">
+                            <label for="placar63">A</label>
+                            <input type="text" name="placar63" id="placar63" required> 
                             X 
                             <label for="placar64">B</label>
-                            <input type="text" name="placar14" id="placar14" required>
+                            <input type="text" name="placar64" id="placar64" required>
                         </td>
                     </tr>
                 </table>
@@ -610,3 +546,27 @@ $stmt_ranking = Banco::Instance()->banco->query($q_ranking);
 </div>
 </body>
 </html>
+
+<?php
+$q = "SELECT * FROM resultados";
+$result = Banco::query($q);
+
+if ($result->num_rows > 0) {
+    echo '<table style="background-color: yellow; border: 2px solid blue; padding: 10px;">';
+    echo '<tr><th>Jogo</th><th>Mandante</th><th>!</th><th>!</th><th>Visitante</th></tr>';
+
+    while ($row = $result->fetch_assoc()) {
+        echo '<tr>';
+        echo '<td>' . $row["jogo_id"] . '</td>';
+        echo '<td>' . $row["time1"] . '</td>';
+        echo '<td>' . $row["placar_time1"] . '</td>';
+        echo '<td>' . $row["placar_time2"] . '</td>';
+        echo '<td>' . $row["time2"] . '</td>';
+        echo '</tr>';
+    }
+
+    echo '</table>';
+} else {
+    echo "Nenhum resultado encontrado.";
+}
+?>
